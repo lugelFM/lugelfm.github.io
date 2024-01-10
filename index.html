@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Formulario de Valores</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .input-control-container {
+        display: grid;
+        /* height: 1.5rem; */
+        width: 80%;
+        /* grid-area: 3; */
+        grid-template-columns: 25% 25% 25% 25%;
+        grid-gap: 5px;
+        margin: auto;
+        justify-content: center;
+        justify-items: center;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        max-width: 412px;
+        width: 100vw;
+      }
+
+      #chart-container {
+        margin: 5px;
+        width: 100%;
+      }
+      input {
+        height: 1rem;
+        width: 45px;
+        margin: 2px;
+        font-size: 0.8rem;
+        border: 0;
+        border-bottom: 3px solid lightgray;
+        text-align: center;
+      }
+
+      label {
+        font-size: 1rem;
+        margin: auto;
+      }
+
+      .input-control {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      button {
+        margin: auto;
+        width: 40%;
+        height: 2rem;
+        font-size: 1rem;
+        appearance: none;
+        background: transparent;
+        border: solid 1px lightgray;
+        border-radius: 20px;
+        margin-top: 1rem;
+      }
+
+      form#valuesForm {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Formulario de Valores</h1>
+
+    <form id="valuesForm">
+      <div class="input-control-container">
+        <div class="input-control">
+          <label for="sueno">Sueño:</label>
+          <input
+            type="number"
+            id="sueno"
+            name="sueno"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+
+        <div class="input-control">
+          <label for="cuerpo">Cuerpo:</label>
+          <input
+            type="number"
+            id="cuerpo"
+            name="cuerpo"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+
+        <div class="input-control">
+          <label for="mente">Mente:</label>
+          <input
+            type="number"
+            id="mente"
+            name="mente"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+
+        <div class="input-control">
+          <label for="pareja">Pareja:</label>
+          <input
+            type="number"
+            id="pareja"
+            name="pareja"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+
+        <div class="input-control">
+          <label for="alimentacion">Alimentación:</label>
+          <input
+            type="number"
+            id="alimentacion"
+            name="alimentacion"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+
+        <div class="input-control">
+          <label for="otros">Otros:</label>
+          <input
+            type="number"
+            id="otros"
+            name="otros"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+
+        <div class="input-control">
+          <label for="trabajo">Trabajo:</label>
+          <input
+            type="number"
+            id="trabajo"
+            name="trabajo"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+
+        <div class="input-control">
+          <label for="humanidad">Humanidad:</label>
+          <input
+            type="number"
+            id="humanidad"
+            name="humanidad"
+            min="0"
+            max="24"
+            required
+          />
+        </div>
+        <div class="input-control"></div>
+        <div class="input-control"></div>
+      </div>
+
+      <button type="submit">Guardar</button>
+    </form>
+    <div id="chart-container">
+      <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+
+    <script>
+      const form = document.getElementById("valuesForm");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const sueno = parseInt(document.getElementById("sueno").value);
+        const cuerpo = parseInt(document.getElementById("cuerpo").value);
+        const mente = parseInt(document.getElementById("mente").value);
+        const pareja = parseInt(document.getElementById("pareja").value);
+        const alimentacion = parseInt(
+          document.getElementById("alimentacion").value
+        );
+        const otros = parseInt(document.getElementById("otros").value);
+        const trabajo = parseInt(document.getElementById("trabajo").value);
+        const humanidad = parseInt(document.getElementById("humanidad").value);
+
+        const total =
+          sueno +
+          cuerpo +
+          mente +
+          pareja +
+          alimentacion +
+          otros +
+          trabajo +
+          humanidad;
+
+        if (total != 24) {
+          alert(
+            "La suma de los valores debe ser 24. El valor actual es " + total
+          );
+          return;
+        }
+
+        const values = {
+          sueno,
+          cuerpo,
+          mente,
+          pareja,
+          alimentacion,
+          otros,
+          trabajo,
+          humanidad,
+          fecha: new Date(),
+        };
+
+        let storedValues = localStorage.getItem("userValues");
+        if (!storedValues) {
+          storedValues = JSON.stringify([values]);
+        } else {
+          const parsedValues = JSON.parse(storedValues);
+          parsedValues.push(values);
+          storedValues = JSON.stringify(parsedValues);
+        }
+
+        localStorage.setItem("userValues", storedValues);
+        // removeChart();
+        window.location.reload();
+        // displayChart();
+      });
+
+      function removeChart() {
+        const ctx = document.getElementById("myChart");
+        document.body.removeChild(ctx);
+      }
+
+      function displayChart() {
+        const storedValues = localStorage.getItem("userValues");
+        if (!storedValues) {
+          return;
+        }
+
+        const parsedValues = JSON.parse(storedValues);
+
+        const labels = parsedValues.map((item) =>
+          new Date(item.fecha).toLocaleDateString()
+        );
+
+        const datasets = getDataSetFor(parsedValues, "mente");
+
+        const ctx = document.getElementById("myChart").getContext("2d");
+        const myChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets,
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                min: 0,
+                suggestedMax: 10,
+              },
+            },
+          },
+        });
+      }
+
+      function getDataSetFor(parsedValues, numberKey) {
+        const backgroundColor = [
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(54, 162, 235, 0.2)",
+          "rgba(255, 206, 86, 0.2)",
+          "rgba(75, 192, 192, 0.2)",
+          "rgba(153, 102, 255, 0.2)",
+          "rgba(255, 159, 64, 0.2)",
+          "rgba(112, 99, 132, 0.2)",
+          "rgba(108, 162, 100, 0.2)",
+        ];
+        const borderColor = [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+          "rgba(112, 99, 132, 1)",
+          "rgba(108, 162, 100, 1)",
+        ];
+        const keys = Object.keys(parsedValues[0]);
+        const datasets = keys
+          .filter((key) => key !== "fecha")
+          .map((key) => {
+            return {
+              label: key,
+              data: parsedValues.map((item) => item[key]),
+              backgroundColor: backgroundColor[keys.lastIndexOf(key)],
+              borderColor: borderColor[keys.lastIndexOf(key)],
+              borderWidth: 1,
+            };
+          });
+        return datasets;
+      }
+
+      displayChart(); // Mostrar el gráfico al cargar la página si hay valores guardados
+    </script>
+  </body>
+</html>
